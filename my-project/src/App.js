@@ -1,44 +1,58 @@
+import { useState } from "react";
 
-import './App.css';
-import { useState } from 'react'; 
-
-
+const JOB_KEY = "JOB_LIST";
 
 function App() {
-  const strongeJobs=JSON.parse(localStorage.getItem('jobs'))
-  const [job,getJob]=useState('')
+  const [job, setJob] = useState("");
+  const [jobList, setJobList] = useState(() => {
+    const storageJobList = JSON.parse(localStorage.getItem(JOB_KEY));
 
-  const [jobs,getJobs]=useState(strongeJobs)
-  const handleSubmit=()=>{
-    getJobs(prev=>{
-      const newJobs=[...prev,job]
-      const jsonJobs=JSON.stringify(newJobs)
-      localStorage.setItem('jobs',jsonJobs)
-      return newJobs
+    return storageJobList ?? [];
+  });
+
+  const handleAddJob = () => {
+    if (job === "") {
+      return;
+    }
+
+    setJobList((prevState) => {
+      const newJobList = [...prevState, job];
+
+      const jsonJobList = JSON.stringify(newJobList);
+
+      localStorage.setItem(JOB_KEY, jsonJobList);
+
+      return newJobList;
+    });
+
+    setJob("");
+  };
+  const handleDelete=(e)=>{
+    let newJobsList=jobList.filter(job =>job!==jobList[e])
+    setJobList(prev=>{
+      localStorage.setItem(JOB_KEY,JSON.stringify(newJobsList));
+      return newJobsList;
+
+
     })
-   getJob('')
-    
   }
   
-  
-  return (<div style={{padding:32}}>
-    <input value={job} onChange={e=>getJob(e.target.value)} />
-    <button  onClick={handleSubmit}>Add</button>
-    <ul>
-      <li>To do list</li>
-      {jobs.map((job,index) => 
-        (
-        <div>
-          <li key={index}>{job}</li>
-          <button>delete</button>
-        </div>
-        
-        )
-        
-      )}
-      
-    </ul>
-    </div>)
+  return (
+    <div className="App" style={{ padding: 20 }}>
+      <div style={{ border: "1px solid yellowgreen", padding: 20 }}>
+        <input value={job} onChange={(e) => setJob(e.target.value)} />
+        <button onClick={handleAddJob}>Add</button>
+        <ul>
+          {jobList.map((job, index) => (
+            <li key={index}>{job}
+              <button  onClick={()=>handleDelete(index)} >delete</button>
+              
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
 }
 
 export default App;
